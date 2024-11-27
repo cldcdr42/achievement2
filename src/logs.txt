@@ -1,4 +1,1 @@
-2024-11-27 16:02:18 - Response: 5. Number 4 has been added to the database.
-2024-11-27 16:02:28 - Number 4 is already in the database.
-2024-11-27 16:02:33 - Number 4 is already in the database.
-2024-11-27 16:02:37 - Response: 2. Number 1 has been added to the database.
+
