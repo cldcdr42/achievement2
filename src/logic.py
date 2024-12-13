@@ -1,46 +1,49 @@
-import sqlite3
+import os
 from datetime import datetime
+import sqlite3
 
 # Specify Max number (N)
-# User input number should be within 0 < Input < N
 MAX_NUMBER = 100
+
+# Determine the base directory (default to the current directory if not provided)
+BASE_DIR = os.getenv("APP_BASE_DIR", os.path.dirname(os.path.abspath(__file__)))
+
+# Database and log file paths
+DATABASE_PATH = os.path.join(BASE_DIR, "database.db")
+DEFAULT_LOGS_PATH = os.path.join(BASE_DIR, "logs.txt")
 
 def initialize_database():
     """
     Reinitialize the SQLite database by dropping and recreating the numbers table.
     """
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
-    
-    # Drop the table if it exists (clears the database)
+
     cursor.execute('DROP TABLE IF EXISTS numbers')
-    
-    # Recreate the table
     cursor.execute('''
         CREATE TABLE numbers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             number INTEGER UNIQUE NOT NULL
         )
     ''')
-    
+
     conn.commit()
     conn.close()
 
-def clear_logs():
+def clear_logs(log_path=DEFAULT_LOGS_PATH):
     """
-    Clear the logs.txt file by truncating its content.
+    Clear the log file by truncating its content.
+    Default log path is logs.txt, but this can be overridden.
     """
-    with open("logs.txt", "w") as log_file:
+    with open(log_path, "w") as log_file:
         log_file.write("")  # Overwrite the file with an empty string
 
-def process_number(num):
+def process_number(num, log_path=DEFAULT_LOGS_PATH):
     """
-    Process the given number with the following rules:
-    1. If the number is already in the database, return a message (case 1) and create a log.
-    2. If number + 1 is already in the database, return a message (case 2) and create a log.
-    3. If neither the number nor number + 1 is in the database, add the number and return a success message.
+    Process the given number and log events.
+    Default log path is logs.txt, but this can be overridden.
     """
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     # Check if the number or number + 1 exists in the database
@@ -66,8 +69,8 @@ def process_number(num):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log_entry = f"{timestamp} - {log_message}"
 
-    # Write log to file
-    with open("logs.txt", "a") as log_file:
+    # Write log to the specified log file
+    with open(log_path, "a") as log_file:
         log_file.write(log_entry + "\n")
 
     conn.close()
