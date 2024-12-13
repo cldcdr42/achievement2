@@ -5,13 +5,9 @@ import os
 
 app = Flask(__name__)
 
-# Set base directory for logs and database
-BASE_DIR = os.getenv("APP_BASE_DIR", os.path.dirname(os.path.abspath(__file__)))
-REQUEST_LOGS_PATH = os.path.join(BASE_DIR, "request_logs.txt")
-
-# Reinitialize database and clear logs
+# Reinitialize database (clear it) and logs at the start of the app
 initialize_database()
-clear_logs(REQUEST_LOGS_PATH)
+clear_logs()
 
 @app.route('/process', methods=['POST'])
 def process():
@@ -22,26 +18,21 @@ def process():
 
     # Check if the input is empty or missing
     if not data or 'number' not in data:
-        error_message = "Invalid input. Please send a number."
-        # Log the error
-        with open(REQUEST_LOGS_PATH, "a") as log_file:
-            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            log_file.write(f"{timestamp} - {error_message}\n")
-        return jsonify({"error": error_message}), 400
+        return jsonify({"error": "Invalid input. Please send a number."}), 400
 
     input_number = data.get('number')
 
-    # Validate the input number
+    # Validate if the input is a number and within the allowed range
     is_valid, error_message = validate_number(input_number)
     if not is_valid:
-        # Log validation errors
-        with open(REQUEST_LOGS_PATH, "a") as log_file:
+        # Log the invalid request
+        with open("logs.txt", "a") as log_file:
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log_file.write(f"{timestamp} - {error_message}\n")
         return jsonify({"error": error_message}), 400
 
-    # Process the number and log the result
-    result = process_number(input_number, REQUEST_LOGS_PATH)
+    # Process the valid number and return the result
+    result = process_number(input_number)
     return jsonify({"message": result})
 
 if __name__ == '__main__':

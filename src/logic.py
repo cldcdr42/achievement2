@@ -1,56 +1,67 @@
-import os
+import mysql.connector
 from datetime import datetime
-import sqlite3
+import os
 
 # Specify Max number (N)
+# User input number should be within 0 < Input < N
 MAX_NUMBER = 100
 
-# Determine the base directory (default to the current directory if not provided)
-BASE_DIR = os.getenv("APP_BASE_DIR", os.path.dirname(os.path.abspath(__file__)))
-
-# Database and log file paths
-DATABASE_PATH = os.path.join(BASE_DIR, "database.db")
-DEFAULT_LOGS_PATH = os.path.join(BASE_DIR, "logs.txt")
+def get_db_connection():
+    """
+    Create and return a MySQL database connection using default configuration for Windows.
+    """
+    return mysql.connector.connect(
+        host='localhost',               # Default MySQL host on Windows
+        user='root',                    # Default MySQL root user
+        password='meme',                    # Leave password empty if you didn't set one
+        database='mydatabase',          # Replace with your database name
+        port=3306,                      # Default MySQL port
+        charset='utf8mb4'               # Charset for proper encoding
+    )
 
 def initialize_database():
     """
-    Reinitialize the SQLite database by dropping and recreating the numbers table.
+    Reinitialize the MySQL database by dropping and recreating the numbers table.
     """
-    conn = sqlite3.connect(DATABASE_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-
+    
+    # Drop the table if it exists (clears the database)
     cursor.execute('DROP TABLE IF EXISTS numbers')
+    
+    # Recreate the table
     cursor.execute('''
         CREATE TABLE numbers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY AUTO_INCREMENT,
             number INTEGER UNIQUE NOT NULL
         )
     ''')
-
+    
     conn.commit()
     conn.close()
 
-def clear_logs(log_path=DEFAULT_LOGS_PATH):
+def clear_logs():
     """
-    Clear the log file by truncating its content.
-    Default log path is logs.txt, but this can be overridden.
+    Clear the logs.txt file by truncating its content.
     """
-    with open(log_path, "w") as log_file:
+    with open("logs.txt", "w") as log_file:
         log_file.write("")  # Overwrite the file with an empty string
 
-def process_number(num, log_path=DEFAULT_LOGS_PATH):
+def process_number(num):
     """
-    Process the given number and log events.
-    Default log path is logs.txt, but this can be overridden.
+    Process the given number with the following rules:
+    1. If the number is already in the database, return a message (case 1) and create a log.
+    2. If number + 1 is already in the database, return a message (case 2) and create a log.
+    3. If neither the number nor number + 1 is in the database, add the number and return a success message.
     """
-    conn = sqlite3.connect(DATABASE_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Check if the number or number + 1 exists in the database
-    cursor.execute("SELECT number FROM numbers WHERE number = ?", (num,))
+    cursor.execute("SELECT number FROM numbers WHERE number = %s", (num,))
     is_num_in_db = cursor.fetchone()
 
-    cursor.execute("SELECT number FROM numbers WHERE number = ?", (num + 1,))
+    cursor.execute("SELECT number FROM numbers WHERE number = %s", (num + 1,))
     is_num_plus_one_in_db = cursor.fetchone()
 
     if is_num_in_db:
@@ -61,7 +72,7 @@ def process_number(num, log_path=DEFAULT_LOGS_PATH):
         log_message = f"Number {num + 1} is already in the database (case 2)."
     else:
         # Case 3: Neither the number nor number + 1 is in the database
-        cursor.execute("INSERT INTO numbers (number) VALUES (?)", (num,))
+        cursor.execute("INSERT INTO numbers (number) VALUES (%s)", (num,))
         conn.commit()
         log_message = f"Response: {num + 1}. Number {num} has been added to the database."
 
@@ -69,12 +80,13 @@ def process_number(num, log_path=DEFAULT_LOGS_PATH):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log_entry = f"{timestamp} - {log_message}"
 
-    # Write log to the specified log file
-    with open(log_path, "a") as log_file:
+    # Write log to file
+    with open("logs.txt", "a") as log_file:
         log_file.write(log_entry + "\n")
 
     conn.close()
     return log_message
+
 
 def validate_number(input_number):
     """
