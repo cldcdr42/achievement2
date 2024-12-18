@@ -1,0 +1,5 @@
+2024-12-18 11:40:33 - Response: 2. Number 1 has been added to the database.
+2024-12-18 11:40:56 - Number 1 is already in the database (case 1).
+2024-12-18 11:45:07 - Number 1 is already in the database (case 1).
+2024-12-18 11:45:14 - Response: 11. Number 10 has been added to the database.
+2024-12-18 11:45:19 - Number 10 is already in the database (case 2).

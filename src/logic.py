@@ -1,43 +1,83 @@
-import mysql.connector
-from datetime import datetime
+import psycopg2
 import os
+from datetime import datetime
 
 # Specify Max number (N)
-# User input number should be within 0 < Input < N
 MAX_NUMBER = 100
+
+def create_database_if_not_exists():
+    """
+    Check if the specified database exists, and create it if it does not.
+    """
+    db_host = os.getenv('DB_HOST', 'localhost')  # Default to localhost
+    db_user = os.getenv('DB_USER', 'postgres')  # Default to 'postgres'
+    db_password = os.getenv('DB_PASSWORD', 'meme')  # Default to 'password'
+    db_name = os.getenv('DB_NAME', 'mydatabase')  # Default to 'mydatabase'
+    db_port = int(os.getenv('DB_PORT', 5432))  # Default to 5432
+
+    # Connect to the default database ('postgres') to check for the existence of the target database
+    conn = psycopg2.connect(
+        host=db_host,
+        user=db_user,
+        password=db_password,
+        database='postgres',
+        port=db_port
+    )
+    conn.autocommit = True  # Enable autocommit for database creation
+    cursor = conn.cursor()
+
+    # Check if the database already exists
+    cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (db_name,))
+    exists = cursor.fetchone()
+
+    if not exists:
+        # Create the database if it does not exist
+        cursor.execute(f"CREATE DATABASE {db_name}")
+        print(f"Database '{db_name}' created successfully.")
+    else:
+        print(f"Database '{db_name}' already exists.")
+
+    cursor.close()
+    conn.close()
 
 def get_db_connection():
     """
-    Create and return a MySQL database connection using default configuration for Windows.
+    Create and return a PostgreSQL database connection using environment variables for configuration.
     """
-    return mysql.connector.connect(
-        host='localhost',               # Default MySQL host on Windows
-        user='root',                    # Default MySQL root user
-        password='meme',                    # Leave password empty if you didn't set one
-        database='mydatabase',          # Replace with your database name
-        port=3306,                      # Default MySQL port
-        charset='utf8mb4'               # Charset for proper encoding
+    db_host = os.getenv('DB_HOST', 'localhost')  # Default to localhost
+    db_user = os.getenv('DB_USER', 'postgres')  # Default to 'postgres'
+    db_password = os.getenv('DB_PASSWORD', 'meme')  # Default to 'password'
+    db_name = os.getenv('DB_NAME', 'mydatabase')  # Default to 'mydatabase'
+    db_port = int(os.getenv('DB_PORT', 5432))  # Default to 5432
+
+    return psycopg2.connect(
+        host=db_host,
+        user=db_user,
+        password=db_password,
+        database=db_name,
+        port=db_port
     )
 
 def initialize_database():
     """
-    Reinitialize the MySQL database by dropping and recreating the numbers table.
+    Reinitialize the PostgreSQL database by dropping and recreating the numbers table.
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     # Drop the table if it exists (clears the database)
     cursor.execute('DROP TABLE IF EXISTS numbers')
-    
+
     # Recreate the table
     cursor.execute('''
         CREATE TABLE numbers (
-            id INTEGER PRIMARY KEY AUTO_INCREMENT,
+            id SERIAL PRIMARY KEY,
             number INTEGER UNIQUE NOT NULL
         )
     ''')
-    
+
     conn.commit()
+    cursor.close()
     conn.close()
 
 def clear_logs():
@@ -84,9 +124,9 @@ def process_number(num):
     with open("logs.txt", "a") as log_file:
         log_file.write(log_entry + "\n")
 
+    cursor.close()
     conn.close()
     return log_message
-
 
 def validate_number(input_number):
     """

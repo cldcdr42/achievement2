@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify
-from logic import initialize_database, clear_logs, process_number, validate_number
+from logic import create_database_if_not_exists, initialize_database, clear_logs, process_number, validate_number
 from datetime import datetime
 import os
 
 app = Flask(__name__)
 
 # Reinitialize database (clear it) and logs at the start of the app
+create_database_if_not_exists()
 initialize_database()
 clear_logs()
 
@@ -37,3 +38,5 @@ def process():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
+
+
