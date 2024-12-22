@@ -18,4 +18,8 @@ python app.py
 Invoke-WebRequest -Uri "http://127.0.0.1:5000/process" -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"number": 1}'
 ```
 
+```
+curl -X POST -H "Content-Type: application/json" -d '{"number": 1}' http://localhost:5000/process
+```
+
 Replace 1 with any other natural number
