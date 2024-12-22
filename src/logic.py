@@ -5,15 +5,16 @@ from datetime import datetime
 # Specify Max number (N)
 MAX_NUMBER = 100
 
+
 def create_database_if_not_exists():
     """
     Check if the specified database exists, and create it if it does not.
     """
-    db_host = os.getenv('DB_HOST', 'localhost')  # Default to localhost
-    db_user = os.getenv('DB_USER', 'postgres')  # Default to 'postgres'
-    db_password = os.getenv('DB_PASSWORD', 'meme')  # Default to 'password'
-    db_name = os.getenv('DB_NAME', 'mydatabase')  # Default to 'mydatabase'
-    db_port = int(os.getenv('DB_PORT', 5432))  # Default to 5432
+    db_host = os.getenv('DB_HOST', 'postgres_svc')  # Default to localhost
+    db_user = os.getenv('POSTGRES_USER', 'root')  # Default to 'postgres'
+    db_password = os.getenv('POSTGRES_PASSWORD', '123')  # Default to 'password'
+    db_name = os.getenv('POSTGRES_DB', 'db')  # Default to 'mydatabase'
+    db_port = int(os.getenv('DB_PORT', '5432'))  # Default to 5432
 
     # Connect to the default database ('postgres') to check for the existence of the target database
     conn = psycopg2.connect(
@@ -44,11 +45,11 @@ def get_db_connection():
     """
     Create and return a PostgreSQL database connection using environment variables for configuration.
     """
-    db_host = os.getenv('DB_HOST', 'localhost')  # Default to localhost
-    db_user = os.getenv('DB_USER', 'postgres')  # Default to 'postgres'
-    db_password = os.getenv('DB_PASSWORD', 'meme')  # Default to 'password'
-    db_name = os.getenv('DB_NAME', 'mydatabase')  # Default to 'mydatabase'
-    db_port = int(os.getenv('DB_PORT', 5432))  # Default to 5432
+    db_host = os.getenv('DB_HOST', 'postgres_svc')  # Default to localhost
+    db_user = os.getenv('POSTGRES_USER', 'root')  # Default to 'postgres'
+    db_password = os.getenv('POSTGRES_PASSWORD', '123')  # Default to 'password'
+    db_name = os.getenv('POSTGRES_DB', 'db')  # Default to 'mydatabase'
+    db_port = int(os.getenv('DB_PORT', '5432'))  # Default to 5432
 
     return psycopg2.connect(
         host=db_host,
@@ -84,7 +85,7 @@ def clear_logs():
     """
     Clear the logs.txt file by truncating its content.
     """
-    with open("logs.txt", "w") as log_file:
+    with open("./logs.txt", "w") as log_file:
         log_file.write("")  # Overwrite the file with an empty string
 
 def process_number(num):
@@ -121,7 +122,7 @@ def process_number(num):
     log_entry = f"{timestamp} - {log_message}"
 
     # Write log to file
-    with open("logs.txt", "a") as log_file:
+    with open("./logs.txt", "a") as log_file:
         log_file.write(log_entry + "\n")
 
     cursor.close()

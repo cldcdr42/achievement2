@@ -27,7 +27,7 @@ def process():
     is_valid, error_message = validate_number(input_number)
     if not is_valid:
         # Log the invalid request
-        with open("logs.txt", "a") as log_file:
+        with open("./logs.txt", "a") as log_file:
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log_file.write(f"{timestamp} - {error_message}\n")
         return jsonify({"error": error_message}), 400
@@ -38,5 +38,3 @@ def process():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
-
-
