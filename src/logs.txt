@@ -1,6 +1,0 @@
-2024-12-18 13:20:21 - The input must be between 1 and 99.
-2024-12-18 13:20:24 - Response: 2. Number 1 has been added to the database.
-2024-12-18 13:20:27 - Response: 3. Number 2 has been added to the database.
-2024-12-18 13:20:29 - Response: 4. Number 3 has been added to the database.
-2024-12-18 13:20:31 - Response: 5. Number 4 has been added to the database.
-2024-12-18 13:20:38 - Response: 6. Number 5 has been added to the database.
