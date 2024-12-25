@@ -16,6 +16,12 @@ def create_database_if_not_exists():
     db_name = os.getenv('POSTGRES_DB', 'db')  # Default to 'mydatabase'
     db_port = int(os.getenv('DB_PORT', '5432'))  # Default to 5432
 
+    print(f"DB Host: {db_host}")
+    print(f"DB User: {db_user}")
+    print(f"DB Password: {db_password}")
+    print(f"DB Name: {db_name}")
+    print(f"DB Port: {db_port}")
+
     # Connect to the default database ('postgres') to check for the existence of the target database
     conn = psycopg2.connect(
         host=db_host,
